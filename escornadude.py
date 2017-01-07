@@ -26,18 +26,50 @@ import urllib
 import os
 import subprocess
 
+import sys
+
+def avrdude_binary():
+    uname = os.uname()
+    avrdude = "%s-%s/avrdude" % (uname[0], uname[4])
+    if uname == "Windows":
+        avrdude += ".exe"
+    return avrdude
+
+def get_version():
+    # in testing
+    return "v1.4.1"
+
+def get_micro():
+    # in testing
+    return "nano"
+
+# firmware repository
 urlbase = "https://github.com/escornabot/arduino/raw/testing/binaries"
-hexfile = "escornabot-v1.4.1-nano.hex"
 
+# avrdude
+avrdude = avrdude_binary()
+if not os.path.isfile(avrdude):
+    print("avrdude binary not found (please report): %s" % avrdude)
+    sys.exit()
+
+# chose version and microcontroller
+hexfile = "escornabot-%s-%s.hex" % (get_version(), get_micro())
+
+# download the firmware
 url = urlbase + "/" + hexfile
-
 print("Downloading %s" % url)
-filename = urllib.urlretrieve(url)[0]
+try:
+    firmware = urllib.urlretrieve(url)[0]
+except:
+    print("Firmware not downloaded (please report): " % url)
+    sys.exit()
 
-subprocess.call([ "avrdude", "-U", "flash:w:" + filename + ":i", "-C",
-    "avrdude.conf", "-v", "-p", "atmega328", "-b", "115200", "-c", "stk500v2", 
-    "-P", "/dev/ttyUSB0"])
+# upload to microcontroller
+#subprocess.call([avrdude, "-U", "flash:w:" + firmware+ ":i", "-C",
+#    "avrdude.conf", "-v", "-p", "atmega328", "-b", "115200", "-c", "stk500v2", 
+#    "-P", "/dev/ttyUSB0"])
 
-os.remove(filename)
+# remove downloads
+os.remove(firmware)
 
 
