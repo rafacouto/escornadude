@@ -22,11 +22,10 @@
 # See LICENSE file for details                                                      
 #                                                                                  
 
-import urllib
 import os
-import subprocess
-
 import sys
+import urllib
+import subprocess
 
 def get_avrdude():
     uname = os.uname()
@@ -36,17 +35,20 @@ def get_avrdude():
     cfg = "avrdude-%s.conf" % (uname[0])
     return (exe, cfg)
 
+# ToDo
 def get_version():
     # in testing
     return "v1.4.1"
 
+# ToDo
 def get_micro():
     # in testing
     return "nano"
 
+# ToDo
 def get_port():
     # in testing
-    return "/dev/tyUSB0"
+    return "/dev/ttyUSB0"
 
 # firmware repository
 urlbase = "https://github.com/escornabot/arduino/raw/testing/binaries"
@@ -69,10 +71,11 @@ except:
     print("Firmware not downloaded (please report): " % url)
     sys.exit()
 
-# ToDo: upload to microcontroller
-#subprocess.call([avrdude_exe, "-U", "flash:w:" + firmware+ ":i", "-C",
-#    avrdude_cfg, "-v", "-p", "atmega328", "-b", "115200", "-c", "stk500v2", 
-#    "-P", get_port()])
+# upload to microcontroller
+subprocess.call(
+    "%s -p atmega328p -C %s -c arduino -b 57600 -P ""%s"" -U ""flash:w:%s:i"" -D" %
+    (avrdude_exe, avrdude_cfg, get_port(), firmware), 
+    shell=True)
 
 # remove downloads
 os.remove(firmware)
