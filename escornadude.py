@@ -28,12 +28,13 @@ import subprocess
 
 import sys
 
-def avrdude_binary():
+def get_avrdude():
     uname = os.uname()
-    avrdude = "%s-%s/avrdude" % (uname[0], uname[4])
+    exe = "%s-%s/avrdude" % (uname[0], uname[4])
     if uname == "Windows":
-        avrdude += ".exe"
-    return avrdude
+        exe += ".exe"
+    cfg = "avrdude-%s.conf" % (uname[0])
+    return (exe, cfg)
 
 def get_version():
     # in testing
@@ -43,13 +44,17 @@ def get_micro():
     # in testing
     return "nano"
 
+def get_port():
+    # in testing
+    return "/dev/tyUSB0"
+
 # firmware repository
 urlbase = "https://github.com/escornabot/arduino/raw/testing/binaries"
 
 # avrdude
-avrdude = avrdude_binary()
-if not os.path.isfile(avrdude):
-    print("avrdude binary not found (please report): %s" % avrdude)
+avrdude_exe, avrdude_cfg = get_avrdude()
+if not os.path.isfile(avrdude_exe):
+    print("avrdude binary not found (please report): %s" % avrdude_exe)
     sys.exit()
 
 # chose version and microcontroller
@@ -64,10 +69,10 @@ except:
     print("Firmware not downloaded (please report): " % url)
     sys.exit()
 
-# upload to microcontroller
-#subprocess.call([avrdude, "-U", "flash:w:" + firmware+ ":i", "-C",
-#    "avrdude.conf", "-v", "-p", "atmega328", "-b", "115200", "-c", "stk500v2", 
-#    "-P", "/dev/ttyUSB0"])
+# ToDo: upload to microcontroller
+#subprocess.call([avrdude_exe, "-U", "flash:w:" + firmware+ ":i", "-C",
+#    avrdude_cfg, "-v", "-p", "atmega328", "-b", "115200", "-c", "stk500v2", 
+#    "-P", get_port()])
 
 # remove downloads
 os.remove(firmware)
